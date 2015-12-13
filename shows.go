@@ -3,10 +3,11 @@ package trakt
 import "fmt"
 
 var (
-	ShowURL         = Hyperlink("shows/{traktID}")
-	ShowsPopularURL = Hyperlink("shows/popular")
-	ShowsSearchURL  = Hyperlink("search?query={query}&type=show")
-	ShowsByIDURL    = Hyperlink("search?id_type={id_type}&id={id}&type=show")
+	ShowURL              = Hyperlink("shows/{traktID}")
+	ShowsPopularURL      = Hyperlink("shows/popular")
+	ShowsSearchURL       = Hyperlink("search?query={query}&type=show")
+	ShowsByIDURL         = Hyperlink("search?id_type={id_type}&id={id}&type=show")
+	ShowsWatchedProgress = Hyperlink("shows/{id}/progress/watched")
 )
 
 // Create a ShowsService with the base url.URL
@@ -47,6 +48,19 @@ func (r *ShowsService) Search(query string) (shows []ShowResult, result *Result)
 	url, _ := ShowsSearchURL.Expand(M{"query": query})
 	result = r.client.get(url, &shows)
 	return
+}
+
+func (r *ShowsService) WatchedProgress(id int) (progress ShowProgress, result *Result) {
+	url, _ := ShowsWatchedProgress.Expand(M{"id": id})
+	result = r.client.get(url, &progress)
+	return
+}
+
+type ShowProgress struct {
+	AiredCount     int     `json:"aired"`
+	CompletedCount int     `json:"completed"`
+	LastWatchedAt  string  `json:"last_watched_at"`
+	NextEpisode    Episode `json:"next_episode"`
 }
 
 // Show struct for the Trakt v2 API
